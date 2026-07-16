@@ -1,0 +1,13 @@
+services:
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: enterprise-mlops-airflow-platform:local
+    ports:
+      - "8501:8501"
+    environment:
+      MODEL_ARTIFACT_DIR: /app/artifacts
+    restart: unless-stopped
+    volumes:
+      - ./artifacts:/app/artifacts

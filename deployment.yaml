@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-mlops-streamlit
+  labels:
+    app: enterprise-mlops-streamlit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: enterprise-mlops-streamlit
+  template:
+    metadata:
+      labels:
+        app: enterprise-mlops-streamlit
+    spec:
+      containers:
+        - name: streamlit
+          image: enterprise-mlops-airflow-platform:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8501
+          env:
+            - name: MODEL_ARTIFACT_DIR
+              value: /app/artifacts
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8501
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8501
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-mlops-streamlit
+  labels:
+    app: enterprise-mlops-streamlit
+spec:
+  type: NodePort
+  selector:
+    app: enterprise-mlops-streamlit
+  ports:
+    - port: 80
+      targetPort: 8501
+      nodePort: 30081

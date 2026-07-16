@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "enterprise-mlops-airflow-platform"
+version = "0.1.0"
+description = "Local MLOps workflow with Python training, Airflow orchestration, Streamlit inference, Docker, and Kubernetes"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "joblib==1.4.2",
+  "pandas==2.2.3",
+  "scikit-learn==1.6.1",
+  "streamlit==1.39.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest==8.3.4"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

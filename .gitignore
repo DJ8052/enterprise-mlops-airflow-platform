@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.pkl
+*.joblib
+.venv/
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+.env
+.airflow/
+artifacts/
+metrics.json
+*.log
+.vscode/
