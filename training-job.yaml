@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: enterprise-mlops-training
+
+spec:
+  backoffLimit: 2
+
+  template:
+    metadata:
+      labels:
+        app: enterprise-mlops-training
+
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: training
+          image: enterprise-mlops-airflow-platform:latest
+          imagePullPolicy: Never
+
+          command:
+            - python
+            - -c
+
+          args:
+            - |
+              from enterprise_mlops_airflow_platform.pipeline import run_training_pipeline
+
+              result = run_training_pipeline(output_dir="/app/artifacts")
+              print(result)
+
+          volumeMounts:
+            - name: model-storage
+              mountPath: /app/artifacts
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: model-artifacts-pvc

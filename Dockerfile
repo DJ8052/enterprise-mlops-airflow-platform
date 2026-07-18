@@ -6,16 +6,23 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN groupadd --system app && useradd --system --gid app app
+RUN groupadd --system app \
+    && useradd --system --gid app app
 
 COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
 
-COPY pyproject.toml ./
+COPY pyproject.toml README.md ./
 COPY src ./src
+
+RUN pip install .
+
 COPY streamlit ./streamlit
 
-RUN chown -R app:app /app
+RUN mkdir -p /app/artifacts \
+    && chown -R app:app /app
+
 USER app
 
 EXPOSE 8501
