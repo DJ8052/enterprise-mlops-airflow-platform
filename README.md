@@ -1,188 +1,308 @@
 # Enterprise MLOps Airflow Platform
 
-This repository contains a local MLOps workflow that trains a machine-learning model from the Iris dataset, persists the trained model and evaluation metrics, exposes the model through a Streamlit inference app, and can be packaged with Docker and deployed to a local Kubernetes cluster with Minikube.
+This repository demonstrates a production-minded local MLOps workflow that trains a machine learning model, orchestrates training with Apache Airflow and Kubernetes, persists model artifacts to shared storage, and serves predictions through a Streamlit application.
 
-## Project objective
+The project is designed as an engineering portfolio that demonstrates software engineering, workflow orchestration, containerization, Kubernetes-native execution, and machine learning infrastructure rather than model complexity.
 
-The project demonstrates a small but complete workflow for:
+---
 
-- loading and preparing tabular data,
-- training a logistic regression classifier,
-- saving a model artifact and evaluation metrics,
-- orchestrating the training workflow with Apache Airflow,
-- serving predictions through a lightweight Streamlit UI,
-- containerizing the UI for local deployment,
-- and describing a Kubernetes deployment for local testing.
+# Project Objective
 
-This implementation is intentionally simple and understandable for interviews and portfolio demonstrations.
+The objective of this project is to demonstrate a complete end-to-end machine learning workflow that follows production-minded engineering practices while remaining simple enough to understand, discuss, and extend during technical interviews.
 
-## Actual workflow
+The repository demonstrates:
+
+* Python software engineering
+* Git-based development workflow
+* Automated unit testing with pytest
+* Docker containerization
+* Kubernetes-native model training
+* Apache Airflow workflow orchestration
+* Shared model artifact management
+* Streamlit model inference
+* Modular project organization
+
+Although the current implementation uses the Iris dataset, the engineering platform is intentionally designed so the underlying business problem, data, features, and model can be replaced without redesigning the infrastructure.
+
+---
+
+# System Architecture
 
 ```text
-Iris dataset
-  -> Python training pipeline
-  -> model artifact: artifacts/iris_classifier.joblib
-  -> metrics artifact: artifacts/metrics.json
-  -> Apache Airflow DAG
-  -> Streamlit inference app
-  -> Docker image
-  -> Kubernetes deployment
+Developer
+      │
+      ▼
+Apache Airflow
+      │
+      ▼
+KubernetesJobOperator
+      │
+      ▼
+Kubernetes Training Job
+      │
+      ▼
+Shared Persistent Storage
+      │
+      ▼
+Model Artifact
+      │
+      ▼
+Streamlit Inference Application
 ```
 
-## Dataset, model, artifacts, and metrics
+The engineering responsibilities are intentionally separated:
 
-- Dataset: scikit-learn Iris dataset
-- Model: logistic regression classifier
-- Model artifact: artifacts/iris_classifier.joblib
-- Metrics artifact: artifacts/metrics.json
-- Primary metric: accuracy
-- Feature order used for training and inference:
-  - sepal_length
-  - sepal_width
-  - petal_length
-  - petal_width
+* **Apache Airflow** orchestrates the workflow.
+* **Kubernetes** executes model training.
+* **Shared storage** persists trained model artifacts.
+* **Streamlit** loads the trained model for inference.
+* **Docker** packages the application for consistent execution.
+* **Git and GitHub** provide version control.
 
-## Repository tree
+---
+
+# Current Demonstration Workflow
+
+```text
+Iris Dataset
+      │
+      ▼
+Python Training Pipeline
+      │
+      ▼
+Kubernetes Training Job
+      │
+      ▼
+Shared Model Artifacts
+      │
+      ▼
+Streamlit Inference
+```
+
+---
+
+# Dataset, Model, and Artifacts
+
+**Dataset**
+
+* scikit-learn Iris dataset
+
+**Current Model**
+
+* Logistic Regression classifier
+
+**Artifacts**
+
+* `artifacts/iris_classifier.joblib`
+* `artifacts/metrics.json`
+
+**Primary Evaluation Metric**
+
+* Classification Accuracy
+
+**Feature Order**
+
+* sepal_length
+* sepal_width
+* petal_length
+* petal_width
+
+---
+
+# Repository Structure
 
 ```text
 .
-├── .dockerignore
-├── .env.example
-├── .gitignore
-├── Dockerfile
-├── README.md
-├── deployment.yaml
-├── docker-compose.yml
-├── pyproject.toml
-├── requirements.txt
 ├── airflow/
 │   └── dags/
-│       └── ml_pipeline_dag.py
+├── artifacts/
+├── k8s/
 ├── scripts/
-│   ├── build_docker.ps1
-│   ├── deploy_k8s.ps1
-│   ├── run_pipeline.ps1
-│   ├── run_streamlit.ps1
-│   ├── run_tests.ps1
-│   └── setup_env.ps1
 ├── src/
 │   └── enterprise_mlops_airflow_platform/
-│       ├── __init__.py
-│       ├── data_pipeline.py
-│       ├── modeling.py
-│       ├── pipeline.py
 ├── streamlit/
-│   └── app.py
-└── tests/
-    └── test_pipeline.py
+├── tests/
+├── Dockerfile
+├── docker-compose.yml
+├── deployment.yaml
+├── pyproject.toml
+├── requirements.txt
+└── README.md
 ```
 
-## Prerequisites
+> The exact contents of each directory may evolve as additional engineering capabilities are added.
 
-- Python 3.11+
-- Windows PowerShell
-- Docker Desktop and Docker Engine
-- Docker Compose
-- kubectl
-- Minikube (optional for local validation)
+---
 
-## Local setup
+# Prerequisites
 
-From the repository root, run:
+* Python 3.11+
+* Docker Desktop
+* Docker Compose
+* kubectl
+* Minikube
+* Apache Airflow (Docker Compose environment)
+
+---
+
+# Local Setup
+
+Create the virtual environment and install dependencies:
 
 ```powershell
 ./scripts/setup_env.ps1
 ```
 
-This creates or reuses .venv and installs the project dependencies from requirements.txt.
+---
 
-## Run tests
+# Run Unit Tests
 
 ```powershell
 ./scripts/run_tests.ps1
 ```
 
-## Train the model
+---
+
+# Train the Model
 
 ```powershell
 ./scripts/run_pipeline.ps1
 ```
 
-Expected output:
+Expected artifacts:
 
-- artifacts/iris_classifier.joblib
-- artifacts/metrics.json
+* `artifacts/iris_classifier.joblib`
+* `artifacts/metrics.json`
 
-## Launch the Streamlit app
+---
+
+# Launch the Streamlit Application
 
 ```powershell
 ./scripts/run_streamlit.ps1
 ```
 
-The app expects the trained model artifact to exist at artifacts/iris_classifier.joblib.
+The Streamlit application loads the trained model artifact and performs interactive predictions.
 
-## Docker
+---
 
-Build the image locally:
+# Docker
+
+Build the application:
 
 ```powershell
 ./scripts/build_docker.ps1
 ```
 
-Or run:
+or
 
 ```powershell
 docker compose up --build
 ```
 
-The Docker image launches the Streamlit app on port 8501.
+Docker packages the Streamlit inference application for consistent local execution.
 
-## Kubernetes / Minikube
+---
 
-Build or tag the image locally before applying the manifest:
+# Kubernetes
 
-```powershell
-docker build -t enterprise-mlops-airflow-platform:local .
-```
-
-Then deploy with:
-
-```powershell
-./scripts/deploy_k8s.ps1
-```
-
-Or directly:
+Deploy the application to the local Minikube cluster:
 
 ```powershell
 kubectl apply -f deployment.yaml
 ```
 
-## Airflow DAG
+The Kubernetes deployment demonstrates local container orchestration and shared artifact usage.
 
-The Airflow DAG is defined in airflow/dags/ml_pipeline_dag.py and calls the shared training pipeline module from src/enterprise_mlops_airflow_platform/pipeline.py.
+---
 
-The DAG is intended for local development and uses a simple PythonOperator-based workflow. It does not bundle the full Airflow UI stack into the Docker image.
+# Apache Airflow
 
-## Current status
+Apache Airflow orchestrates the machine learning workflow using a **KubernetesJobOperator**.
 
-The repository currently implements the core workflow locally and provides the files needed to run the training pipeline, test it, launch the Streamlit app, build the Docker image, and describe a Kubernetes deployment.
+The validated orchestration flow is:
 
-### Current limitations
-
-- The Airflow DAG is intended for local development and has not been fully exercised in a production-grade Airflow deployment.
-- The Docker image currently serves the Streamlit inference app only.
-- The Kubernetes manifest is a local Minikube-oriented deployment example rather than a production-grade cluster configuration.
-- The project does not include secrets management, CI/CD automation, or model registry integration yet.
-
-## Validation commands
-
-The following commands are available for local verification:
-
-```powershell
-./scripts/setup_env.ps1
-./scripts/run_tests.ps1
-./scripts/run_pipeline.ps1
-./scripts/run_streamlit.ps1
-./scripts/build_docker.ps1
-kubectl apply --dry-run=client -f deployment.yaml
+```text
+Airflow
+      │
+      ▼
+Kubernetes Job
+      │
+      ▼
+Training Container
+      │
+      ▼
+Shared Persistent Storage
+      │
+      ▼
+Model Artifacts
 ```
+
+This separates workflow orchestration from model serving while allowing training artifacts to be reused by downstream applications.
+
+---
+
+# Validated Capabilities
+
+The following capabilities have been implemented and validated locally:
+
+* ✅ Modular Python package
+* ✅ Git version control
+* ✅ GitHub repository
+* ✅ Virtual environment
+* ✅ Unit testing with pytest
+* ✅ Machine learning training pipeline
+* ✅ Model persistence
+* ✅ Streamlit inference application
+* ✅ Docker containerization
+* ✅ Docker Compose environment
+* ✅ Kubernetes deployment with Minikube
+* ✅ Kubernetes Job execution
+* ✅ Shared persistent model artifacts
+* ✅ Apache Airflow scheduler and web interface
+* ✅ Airflow DAG execution
+* ✅ KubernetesJobOperator orchestration
+
+---
+
+# Current Status
+
+The repository demonstrates a complete local MLOps workflow in which Apache Airflow orchestrates Kubernetes-native model training, persists trained artifacts to shared storage, and serves predictions through a separate Streamlit application.
+
+The project emphasizes engineering architecture, orchestration, reproducibility, and maintainability over model complexity.
+
+---
+
+# Current Limitations
+
+The current implementation intentionally focuses on local infrastructure validation.
+
+The following capabilities have **not** yet been implemented:
+
+* Cloud deployment
+* CI/CD automation
+* Model registry
+* Secrets management
+* Production monitoring
+* Distributed storage
+* Multi-node Kubernetes deployment
+
+These features are planned as future enhancements after the core engineering workflow has been fully validated.
+
+---
+
+# Roadmap
+
+Planned future work includes:
+
+* Operational reliability improvements
+* Retry and failure handling
+* Artifact validation
+* CI/CD with GitHub Actions
+* Architecture diagrams
+* Technical documentation
+* Construction and field operations business domain
+* Operational risk prediction model
+* Decision-support workflow
+
+The long-term objective is to demonstrate how a reusable engineering platform can support business decision-making by replacing the domain-specific data, features, model, and decision logic while keeping the underlying MLOps architecture intact.
