@@ -8,7 +8,7 @@ The project is designed as an engineering portfolio that demonstrates software e
 
 # Project Objective
 
-The objective of this project is to demonstrate a complete end-to-end machine learning workflow that follows production-minded engineering practices while remaining simple enough to understand, discuss, and extend during technical interviews.
+The objective of this project is to demonstrate a complete end-to-end machine learning workflow that follows production-minded engineering practices.
 
 The repository demonstrates:
 
