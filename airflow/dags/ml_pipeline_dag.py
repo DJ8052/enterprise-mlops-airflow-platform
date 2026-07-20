@@ -3,15 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-
-from enterprise_mlops_airflow_platform.pipeline import run_training_pipeline
-
-
-def run_pipeline_task(**context):
-    result = run_training_pipeline(output_dir="/tmp/enterprise-mlops-artifacts")
-    context["ti"].xcom_push(key="model_path", value=str(result["model_path"]))
-    context["ti"].xcom_push(key="accuracy", value=result["metrics"]["accuracy"])
+from airflow.providers.cncf.kubernetes.operators.job import KubernetesJobOperator
 
 
 with DAG(
@@ -21,10 +13,17 @@ with DAG(
     catchup=False,
     tags=["mlops", "portfolio"],
 ) as dag:
-    training_task = PythonOperator(
-        task_id="train_model",
-        python_callable=run_pipeline_task,
-        provide_context=True,
+    training_task = KubernetesJobOperator(
+        task_id="train_model_on_kubernetes",
+        namespace="default",
+        name="enterprise-mlops-training",
+        job_template_file="/opt/airflow/project/training-job.yaml",
+        config_file="/home/airflow/.kube/config",
+        in_cluster=False,
+        get_logs=True,
+        wait_until_job_complete=True,
+        job_poll_interval=5,
+        on_finish_action="keep_pod",
     )
 
     training_task

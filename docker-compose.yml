@@ -69,6 +69,8 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - airflow-logs:/opt/airflow/logs
+      - ./.airflow-kube/config:/home/airflow/.kube/config:ro
+      - ./training-job.yaml:/opt/airflow/project/training-job.yaml:ro
     command: scheduler
     restart: unless-stopped
 
