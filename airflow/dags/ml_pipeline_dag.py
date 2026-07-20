@@ -3,7 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 
 from airflow import DAG
-from airflow.providers.cncf.kubernetes.operators.job import KubernetesJobOperator
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from kubernetes.client import models as k8s
 
 
 with DAG(
@@ -13,17 +14,33 @@ with DAG(
     catchup=False,
     tags=["mlops", "portfolio"],
 ) as dag:
-    training_task = KubernetesJobOperator(
+    training_task = KubernetesPodOperator(
         task_id="train_model_on_kubernetes",
         namespace="default",
         name="enterprise-mlops-training",
-        job_template_file="/opt/airflow/project/training-job.yaml",
+        image="enterprise-mlops-airflow-platform:latest",
+        image_pull_policy="Never",
+        cmds=["python", "-c"],
+        arguments=[
+            "from enterprise_mlops_airflow_platform.pipeline import run_training_pipeline\n"
+            "result = run_training_pipeline(output_dir='/app/artifacts')\n"
+            "print(result)\n"
+        ],
+        volumes=[
+            k8s.V1Volume(
+                name="model-storage",
+                persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
+                    claim_name="model-artifacts-pvc"
+                ),
+            )
+        ],
+        volume_mounts=[
+            k8s.V1VolumeMount(name="model-storage", mount_path="/app/artifacts")
+        ],
         config_file="/home/airflow/.kube/config",
         in_cluster=False,
         get_logs=True,
-        wait_until_job_complete=True,
-        job_poll_interval=5,
-        on_finish_action="keep_pod",
+        is_delete_operator_pod=False,
     )
 
     training_task
